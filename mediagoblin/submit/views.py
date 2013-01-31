@@ -27,12 +27,16 @@ from werkzeug.datastructures import FileStorage
 from mediagoblin.tools.text import convert_to_tag_list_of_dicts
 from mediagoblin.tools.translate import pass_to_ugettext as _
 from mediagoblin.tools.response import render_to_response, redirect
+from mediagoblin.tools.collection import collection_tools
 from mediagoblin.decorators import require_active_login
 from mediagoblin.submit import forms as submit_forms
 from mediagoblin.messages import add_message, SUCCESS
 from mediagoblin.media_types import sniff_media, \
     InvalidFileType, FileTypeNotSupported
 from mediagoblin.submit.lib import run_process_media, prepare_queue_task
+#ADDING
+from mediagoblin.db.models import (MediaEntry, Collection, CollectionItem, User)
+from mediagoblin.user_pages import forms as user_forms
 
 
 @require_active_login
@@ -42,6 +46,13 @@ def submit_start(request):
     """
     submit_form = submit_forms.SubmitStartForm(request.form,
         license=request.user.license_preference)
+
+    #ADDING
+    collection_form = user_forms.MediaCollectForm(request.form)
+
+    # A user's own collections:
+    collection_form.collection.query = Collection.query.filter_by(
+        creator = request.user.id).order_by(Collection.title)
 
     if request.method == 'POST' and submit_form.validate():
         if not ('file' in request.files
@@ -86,6 +97,9 @@ def submit_start(request):
                 # Save now so we have this data before kicking off processing
                 entry.save()
 
+                #Add the media to a collection if you want
+                collection_tools(request, entry,collection_form, new_media=True)
+
                 # Pass off to processing
                 #
                 # (... don't change entry after this point to avoid race
@@ -114,7 +128,8 @@ def submit_start(request):
         request,
         'mediagoblin/submit/start.html',
         {'submit_form': submit_form,
-         'app_config': mg_globals.app_config})
+         'app_config': mg_globals.app_config,
+         'collection_form': collection_form})
 
 @require_active_login
 def add_collection(request, media=None):
