@@ -15,6 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from math import ceil
+import logging
+
+from string import replace
 
 import jinja2
 from jinja2.ext import Extension
@@ -27,9 +30,11 @@ from mediagoblin import mg_globals
 from mediagoblin import messages
 from mediagoblin.tools import common
 from mediagoblin.tools.translate import get_gettext_translation
+from mediagoblin import mg_globals 
 from mediagoblin.tools.pluginapi import get_hook_templates
 from mediagoblin.meddleware.csrf import render_csrf_form_token
 
+_log = logging.getLogger(__name__)
 
 SETUP_JINJA_ENVS = {}
 
@@ -97,6 +102,12 @@ def render_template(request, template_path, context):
     rendered_csrf_token = render_csrf_form_token(request)
     if rendered_csrf_token is not None:
         context['csrf_token'] = render_csrf_form_token(request)
+    #adding a customizable list of CSS and JS
+    context['css_files'] = mg_globals.global_config.get('css_files', {})['files'].split()
+    context['js_header_files'] = mg_globals.global_config.get('js_header_files', {})['files'].split()
+    context['js_footer_files'] = mg_globals.global_config.get('js_footer_files', {})['files'].split()
+    
+
     rendered = template.render(context)
 
     if common.TESTS_ENABLED:
@@ -108,6 +119,7 @@ def render_template(request, template_path, context):
 def clear_test_template_context():
     global TEMPLATE_TEST_CONTEXT
     TEMPLATE_TEST_CONTEXT = {}
+
 
 
 class TemplateHookExtension(Extension):

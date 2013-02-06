@@ -39,7 +39,7 @@ def collection_tools(request, media, collection_form, new_media=False):
     elif request.form.get('collection') != '__None':
         collection = Collection.query.filter_by(
             id=request.form.get('collection')).first()
-    else:
+    elif new_media == False:
     # Make sure the user actually selected a collection
         messages.add_message(
             request, messages.ERROR,
@@ -47,6 +47,10 @@ def collection_tools(request, media, collection_form, new_media=False):
         return redirect(request, "mediagoblin.user_pages.media_home",
                     user=media.get_uploader.username,
                     media=media.id)
+   #if there's no collection and it's a new media just do nothing
+    else:
+        return
+       
 
     # Check whether media already exists in collection
     if CollectionItem.query.filter_by(
