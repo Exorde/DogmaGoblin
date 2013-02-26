@@ -22,12 +22,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ app_config['html_title'] }}{% endblock %}</title>
     {% for css_file in css_files %}
-    {% set css_file = request.staticdirect(css_file) %}
+    {#{% set css_file = request.staticdirect(css_file) %}#}
     <link rel="stylesheet" type="text/css"
     href="{{css_file}}"/>
     {% endfor %}
     {% for js_header_file in js_header_files %}
-    {% set js_header_file  = request.staticdirect(js_header_file) %}
+    {#{% set js_header_file  = request.staticdirect(js_header_file) %}#}
     <script src="{{js_header_file}}"></script>
     {% endfor %}
 
