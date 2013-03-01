@@ -1,3 +1,5 @@
+
+# -*- coding: utf-8 -*-
 # GNU MediaGoblin -- federated, autonomous media hosting
 # Copyright (C) 2011, 2012 MediaGoblin contributors.  See AUTHORS.
 #
@@ -13,7 +15,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 from mediagoblin import messages
 import mediagoblin.mg_globals as mg_globals
 from os.path import splitext
@@ -27,7 +28,6 @@ from werkzeug.datastructures import FileStorage
 from mediagoblin.tools.text import convert_to_tag_list_of_dicts
 from mediagoblin.tools.translate import pass_to_ugettext as _
 from mediagoblin.tools.response import render_to_response, redirect
-from mediagoblin.tools.collection import collection_tools
 from mediagoblin.decorators import require_active_login
 from mediagoblin.submit import forms as submit_forms
 from mediagoblin.messages import add_message, SUCCESS
@@ -35,21 +35,18 @@ from mediagoblin.media_types import sniff_media, \
     InvalidFileType, FileTypeNotSupported
 from mediagoblin.submit.lib import run_process_media, prepare_queue_task
 #ADDING COLLECTIONS
+from mediagoblin.tools.collection import collection_tools
 from mediagoblin.db.models import (MediaEntry, Collection, CollectionItem, User)
 from mediagoblin.user_pages import forms as user_forms
 
 
+
 @require_active_login
-def submit_start(request):
-    """
-    First view for submitting a file.
-    """
+def process_extra_data(request):
     submit_form = submit_forms.SubmitStartForm(request.form,
         license=request.user.license_preference)
-
     #ADDING
     collection_form = user_forms.MediaCollectForm(request.form)
-
     # A user's own collections:
     collection_form.collection.query = Collection.query.filter_by(
         creator = request.user.id).order_by(Collection.title)
@@ -97,6 +94,16 @@ def submit_start(request):
                 # Save now so we have this data before kicking off processing
                 entry.save()
 
+                #Extra data for dogma
+                entry_extra = request.db.DogmaExtraDataDB()
+
+                entry_extra.media_entry = entry.id
+                entry_extra.composers = unicode(request.form.get('composers'))
+                entry_extra.authors = unicode(request.form.get('authors'))
+                entry_extra.performers = unicode(request.form.get('performers'))
+
+                entry_extra.save()
+
                 #Add the media to a collection if you want
                 collection_tools(request, entry,collection_form, new_media=True)
 
@@ -123,51 +130,11 @@ def submit_start(request):
                         e)
                 else:
                     raise
-
     return render_to_response(
-        request,
-        'mediagoblin/submit/start.html',
-        {'submit_form': submit_form,
-         'app_config': mg_globals.app_config,
-         'collection_form': collection_form})
-
-@require_active_login
-def add_collection(request, media=None):
-    """
-    View to create a new collection
-    """
-    submit_form = submit_forms.AddCollectionForm(request.form)
-
-    if request.method == 'POST' and submit_form.validate():
-        try:
-            collection = request.db.Collection()
-
-            collection.title = unicode(request.form['title'])
-            collection.description = unicode(request.form.get('description'))
-            collection.creator = request.user.id
-            collection.generate_slug()
-
-            # Make sure this user isn't duplicating an existing collection
-            existing_collection = request.db.Collection.find_one({
-                    'creator': request.user.id,
-                    'title':collection.title})
-
-            if existing_collection:
-                messages.add_message(
-                    request, messages.ERROR, _('You already have a collection called "%s"!' % collection.title))
-            else:
-                collection.save()
-
-                add_message(request, SUCCESS, _('Collection "%s" added!' % collection.title))
-
-            return redirect(request, "mediagoblin.user_pages.user_home",
-                            user=request.user.username)
-
-        except Exception as e:
-            raise
-
-    return render_to_response(
-        request,
-        'mediagoblin/submit/collection.html',
-        {'submit_form': submit_form,
-         'app_config': mg_globals.app_config})
+            request,
+            'dogma_extra_data/dogma_submit.html',
+            {
+             'submit_form': submit_form,
+             'collection_form': collection_form,
+            }
+            )

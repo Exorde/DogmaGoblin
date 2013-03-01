@@ -30,7 +30,7 @@ from mediagoblin import mg_globals
 from mediagoblin import messages
 from mediagoblin.tools import common
 from mediagoblin.tools.translate import get_gettext_translation
-from mediagoblin import mg_globals 
+from mediagoblin import mg_globals
 from mediagoblin.tools.pluginapi import get_hook_templates
 from mediagoblin.meddleware.csrf import render_csrf_form_token
 
