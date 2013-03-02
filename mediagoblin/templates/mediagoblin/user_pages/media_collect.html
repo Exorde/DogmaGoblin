@@ -48,19 +48,19 @@
 
       <br />
 
-      {{- wtforms_util.render_label_p(form.collection) }}
+      {{- wtforms_util.render_label_p(collection_form.collection) }}
       <div class="form_field_input">
-	{{ form.collection }}
+	{{ collection_form.collection }}
 	<a class="button_action" id="button_addcollection">{% trans %}+{% endtrans %}</a>
       </div>
 
       <div id="new_collection" class="subform">
         <h3>{% trans %}Add a new collection{% endtrans %}</h3>
 
-        {{- wtforms_util.render_field_div(form.collection_title) }}
-        {{- wtforms_util.render_field_div(form.collection_description) }}
+        {{- wtforms_util.render_field_div(collection_form.collection_title) }}
+        {{- wtforms_util.render_field_div(collection_form.collection_description) }}
       </div>
-      {{- wtforms_util.render_field_div(form.note) }}
+      {{- wtforms_util.render_field_div(collection_form.note) }}
 
       <div class="form_submit_buttons">
         {# TODO: This isn't a button really... might do unexpected things :) #}

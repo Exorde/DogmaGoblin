@@ -33,11 +33,8 @@
   {%- endif %}
   {%- if request.user %}
     <p>
-      <a type="submit" href="{{ request.urlgen('mediagoblin.user_pages.media_collect', 
-                                  user=media.get_uploader.username,
-                                  media_id=media.id) }}"
-         class="button_action">
-        {% trans %}Add to a collection{% endtrans %}
+        <h3>{% trans %}Add to a collection{% endtrans %}</h3>
+        {% include "mediagoblin/utils/collection_form.html" %}
       </a>
     </p>
   {%- endif %}
