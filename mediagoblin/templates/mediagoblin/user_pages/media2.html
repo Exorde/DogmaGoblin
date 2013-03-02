@@ -177,11 +177,12 @@
       <p>
         <a href="{{ request.urlgen('mediagoblin.edit.attachments',
                       user=media.get_uploader.username,
-                      media_id=media.id) }}">
-          {%- trans %}Add attachment{% endtrans -%}
-        </a>
+                      media=media.id) }}">{% trans %}Add attachment{% endtrans %}</a>
       </p>
-    {%- endif %}
+    {% endif %}
+    {% if request.user %}
+      {% include "mediagoblin/user_pages/media_collect.html" %}
+    {% endif %}
 
     {% template_hook("media_sideinfo") %}
 

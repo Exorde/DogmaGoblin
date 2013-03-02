@@ -14,16 +14,4 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#}
-
-{% extends 'mediagoblin/user_pages/media.html' %}
-
-{% block mediagoblin_head %}
-  {{ super() }}
-  {% template_hook("image_head") %}
-{% endblock mediagoblin_head %}
-
-{% block mediagoblin_sidebar %}
-  {{ super() }}
-  {% template_hook("image_sideinfo") %}
-{% endblock %}
+-#}

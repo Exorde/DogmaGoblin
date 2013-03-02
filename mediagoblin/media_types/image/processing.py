@@ -19,7 +19,6 @@ import os
 import logging
 
 from mediagoblin import mg_globals as mgg
-from mediagoblin.decorators import get_workbench
 from mediagoblin.processing import BadMediaFail, \
     create_pub_filepath, FilenameBuilder
 from mediagoblin.tools.exif import exif_fix_image_orientation, \
@@ -95,21 +94,21 @@ def sniff_handler(media_file, **kw):
     return False
 
 
-@get_workbench
-def process_image(entry, workbench=None):
+def process_image(proc_state):
     """Code to process an image. Will be run by celery.
 
     A Workbench() represents a local tempory dir. It is automatically
     cleaned up when this function exits.
     """
+    entry = proc_state.entry
+    workbench = proc_state.workbench
+
     # Conversions subdirectory to avoid collisions
     conversions_subdir = os.path.join(
         workbench.dir, 'conversions')
     os.mkdir(conversions_subdir)
-    queued_filepath = entry.queued_media_file
-    queued_filename = workbench.localized_file(
-        mgg.queue_store, queued_filepath,
-        'source')
+
+    queued_filename = proc_state.get_queued_filename()
     name_builder = FilenameBuilder(queued_filename)
 
     # EXIF extraction
@@ -142,18 +141,14 @@ def process_image(entry, workbench=None):
         medium_filepath = None
 
     # Copy our queued local workbench to its final destination
-    original_filepath = create_pub_filepath(
-            entry, name_builder.fill('{basename}{ext}'))
-    mgg.public_store.copy_local_to_storage(queued_filename, original_filepath)
+    proc_state.copy_original(name_builder.fill('{basename}{ext}'))
 
     # Remove queued media file from storage and database
-    mgg.queue_store.delete_file(queued_filepath)
-    entry.queued_media_file = []
+    proc_state.delete_queue_file()
 
     # Insert media file information into database
     media_files_dict = entry.setdefault('media_files', {})
     media_files_dict[u'thumb'] = thumb_filepath
-    media_files_dict[u'original'] = original_filepath
     if medium_filepath:
         media_files_dict[u'medium'] = medium_filepath
 

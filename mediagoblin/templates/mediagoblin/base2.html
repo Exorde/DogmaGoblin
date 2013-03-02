@@ -21,16 +21,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ app_config['html_title'] }}{% endblock %}</title>
+    {% for css_file in css_files %}
+    {#{% set css_file = request.staticdirect(css_file) %}#}
     <link rel="stylesheet" type="text/css"
-          href="{{ request.staticdirect('/css/extlib/reset.css') }}"/>
-    <link rel="stylesheet" type="text/css"
-          href="{{ request.staticdirect('/css/base.css') }}"/>
-    <link rel="shortcut icon"
-          href="{{ request.staticdirect('/images/goblin.ico') }}" />
-    <script type="text/javascript"
-            src="{{ request.staticdirect('/js/extlib/jquery.js') }}"></script>
-    <script type="text/javascript"
-            src="{{ request.staticdirect('/js/header_dropdown.js') }}"></script>
+    href="{{css_file}}"/>
+    {% endfor %}
+    {% for js_header_file in js_header_files %}
+    {#{% set js_header_file  = request.staticdirect(js_header_file) %}#}
+    <script src="{{js_header_file}}"></script>
+    {% endfor %}
 
     {# For clarification, the difference between the extra_head.html template
      # and the head template hook is that the former should be used by
@@ -126,9 +125,12 @@
               Released under the <a href="http://www.fsf.org/licensing/licenses/agpl-3.0.html">AGPL</a>. <a href="{{ source_link }}">Source code</a> available.
             {%- endtrans %}
           </footer>
-        {%- endblock mediagoblin_footer %}
-      </div>
-    {%- endblock mediagoblin_body %}
-    {% include 'mediagoblin/bits/body-end.html' %}
+      {% endblock mediagoblin_footer %}
+    {% endblock mediagoblin_body %}
+    </div>
+    {% for js_footer_file in js_footer_files %}
+    {% set js_footer_file  = request.staticdirect(js_footer_file) %}
+    <script src="{{js_footer_file}}"></script>
+    {% endfor %}
   </body>
 </html>
