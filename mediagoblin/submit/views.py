@@ -96,6 +96,7 @@ def submit_start(request):
 
                 # Save now so we have this data before kicking off processing
                 entry.save()
+                request.form
 
                 #Add the media to a collection if you want
                 collection_tools(request, entry,collection_form, new_media=True)

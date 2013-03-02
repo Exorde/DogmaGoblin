@@ -213,7 +213,7 @@ def media_collect(request, media):
             {'media': media,
              'collection_form': collection_form})
 
-        return collection_tools(request, media, collection_form)
+    return collection_tools(request, media, collection_form)
 
 
 #TODO: Why does @user_may_delete_media not implicate @require_active_login?

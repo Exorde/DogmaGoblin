@@ -6,11 +6,11 @@ from mediagoblin.tools.translate import pass_to_ugettext as _
 def collection_tools(request, media, collection_form, new_media=False):
     # If we are here, method=POST and the form is valid, submit things.
     # If the user is adding a new collection, use that:
-    if request.collection_form['collection_title']:
+    if request.form['collection_title']:
         # Make sure this user isn't duplicating an existing collection
         existing_collection = Collection.query.filter_by(
                                 creator=request.user.id,
-                                title=request.collection_form['collection_title']).first()
+                                title=request.form['collection_title']).first()
         if existing_collection:
             messages.add_message(request, messages.ERROR,
                 _('You already have a collection called "%s"!')
@@ -20,8 +20,8 @@ def collection_tools(request, media, collection_form, new_media=False):
                             media=media.slug_or_id)
 
         collection = Collection()
-        collection.title = request.collection_form['collection_title']
-        collection.description = request.collection_form.get('collection_description')
+        collection.title = request.form['collection_title']
+        collection.description = request.form.get('collection_description')
         collection.creator = request.user.id
         collection.generate_slug()
         collection.save()
@@ -29,7 +29,7 @@ def collection_tools(request, media, collection_form, new_media=False):
     # Otherwise, use the collection selected from the drop-down
     else:
         collection = Collection.query.filter_by(
-            id=request.collection_form.get('collection')).first()
+            id=request.form.get('collection')).first()
 
     # Make sure the user actually selected a collection
     if not collection:
@@ -53,7 +53,7 @@ def collection_tools(request, media, collection_form, new_media=False):
         collection_item.collection = collection.id
         collection_item.media_entry = media.id
         collection_item.author = request.user.id
-        collection_item.note = request.collection_form['note']
+        collection_item.note = request.form['note']
         collection_item.save()
 
         collection.items = collection.items + 1

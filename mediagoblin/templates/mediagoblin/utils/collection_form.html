@@ -17,22 +17,7 @@
 #}
 
 {% import "/mediagoblin/utils/wtforms.html" as wtforms_util %}
-  <form action="{{ request.urlgen('mediagoblin.user_pages.media_collect',
-		                  user=media.get_uploader.username,
-				  media_id=media.id) }}"
-        method="POST" enctype="multipart/form-data">
     <div class="form_box">
-      <h1>
-        {%- trans media_title=media.title -%}
-          Add “{{ media_title }}” to a collection
-        {%- endtrans -%}
-      </h1>
-
-      <div style="text-align: center;" >
-        <img src="{{ media.thumb_url }}" />
-      </div>
-
-      <br />
 
       {{- wtforms_util.render_label_p(collection_form.collection) }}
       <div class="form_field_input">
@@ -48,11 +33,4 @@
       </div>
       {{- wtforms_util.render_field_div(collection_form.note) }}
 
-      <div class="form_submit_buttons">
-        {# TODO: This isn't a button really... might do unexpected things :) #}
-	<a class="button_action" href="{{ media.url_for_self(request.urlgen) }}">{% trans %}Cancel{% endtrans %}</a>
-        <input type="submit" value="{% trans %}Add{% endtrans %}" class="button_form" />
-	{{ csrf_token }}
-      </div>
     </div>
-  </form>
