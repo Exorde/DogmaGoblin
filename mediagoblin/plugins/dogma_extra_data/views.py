@@ -138,3 +138,11 @@ def process_extra_data(request):
              'collection_form': collection_form,
             }
             )
+@require_active_login
+def add_band(request):
+    return render_to_response(
+            request,
+            'dogma_extra_data/add_band.html',
+            {
+            }
+            )

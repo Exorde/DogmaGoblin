@@ -1,6 +1,7 @@
 from mediagoblin.db.base import Base
-from sqlalchemy import Column, Integer, Unicode, ForeignKey
+from sqlalchemy import Column, Float,  Integer, Unicode, ForeignKey
 from sqlalchemy.orm import relationship, backref
+from mediagoblin.db.models import MediaEntry
 
 class DogmaExtraDataDB(Base):
     __tablename__ = "dogma__extra_data"
@@ -13,4 +14,16 @@ class DogmaExtraDataDB(Base):
                                    backref=backref("get_dogma_data", uselist=False,
                                                     cascade="all, delete-orphan"))
 
-MODELS = [DogmaExtraDataDB]
+class DogmaBandsDataDB(Base):
+    __tablename__ = "dogma__bands_data"
+
+    band_id = Column(Integer, primary_key=True)
+    allowed_users_id = Column(Unicode)
+    name = Column(Unicode)
+    description = Column(Unicode)
+    album_list = Column(Unicode)
+    latitude = Column(Float)
+    longitude = Column(Float)
+    location = Column(Unicode)
+
+MODELS = [DogmaExtraDataDB, DogmaBandsDataDB]

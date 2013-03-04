@@ -31,7 +31,12 @@ def setup_plugin():
        ('mediagoblin.plugins.dogma_extra_data.process_extra_data',
         '/dogma_extra_data/submit',
         'mediagoblin.plugins.dogma_extra_data.views:process_extra_data',
-       )]
+       ),
+       ('mediagoblin.plugins.dogma_extra_data.add_band',
+        '/dogma_extra_data/add_band',
+        'mediagoblin.plugins.dogma_extra_data.views:add_band',
+       ),
+       ]
 
     pluginapi.register_routes(routes)
     pluginapi.register_template_path(os.path.join(PLUGIN_DIR, 'templates'))
