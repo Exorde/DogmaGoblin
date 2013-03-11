@@ -211,7 +211,35 @@ def media_collect(request, media):
             request,
             'mediagoblin/user_pages/media_collect.html',
             {'media': media,
-             'collection_form': collection_form})
+             'form': form})
+
+    # If we are here, method=POST and the form is valid, submit things.
+    # If the user is adding a new collection, use that:
+    if request.form['collection_title']:
+        # Make sure this user isn't duplicating an existing collection
+        existing_collection = Collection.query.filter_by(
+                                creator=request.user.id,
+                                title=request.form['collection_title']).first()
+        if existing_collection:
+            messages.add_message(request, messages.ERROR,
+                _('You already have a collection called "%s"!')
+                % existing_collection.title)
+            return redirect(request, "mediagoblin.user_pages.media_home",
+                            user=media.get_uploader.username,
+                            media=media.slug_or_id)
+
+        collection = Collection()
+        collection.title = request.form['collection_title']
+        collection.description = request.form.get('collection_description')
+        collection.creator = request.user.id
+        collection.generate_slug()
+        collection.save()
+
+    # Otherwise, use the collection selected from the drop-down
+    else:
+        collection = form.collection.data
+        if collection and collection.creator != request.user.id:
+            collection = None
 
     return collection_tools(request, media, collection_form)
 
