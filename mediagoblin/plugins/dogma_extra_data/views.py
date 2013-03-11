@@ -39,6 +39,9 @@ from mediagoblin.tools.collection import collection_tools
 from mediagoblin.db.models import (MediaEntry, Collection, CollectionItem, User)
 from mediagoblin.user_pages import forms as user_forms
 
+#BAND
+from mediagoblin.plugins.dogma_extra_data import forms as dogma_form
+
 
 
 @require_active_login
@@ -140,9 +143,13 @@ def process_extra_data(request):
             )
 @require_active_login
 def add_band(request):
+    band_form = dogma_form.BandForm(request.form)
+    member_form = dogma_form.MemberForm(request.form)
     return render_to_response(
             request,
             'dogma_extra_data/add_band.html',
             {
+              'band_form': band_form,
+              'member_form': member_form,
             }
             )

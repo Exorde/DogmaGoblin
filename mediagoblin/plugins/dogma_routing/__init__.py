@@ -1,4 +1,3 @@
-{#
 # GNU MediaGoblin -- federated, autonomous media hosting
 # Copyright (C) 2011, 2012 MediaGoblin contributors.  See AUTHORS.
 #
@@ -14,21 +13,30 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#}
 
-{% block collections_content -%}
-  {% if media.collections %}
-    <h3>{% trans %}Collected in{% endtrans %}</h3>
-    <p>
-      {%- for collection in media.collections %}
-        {%- if not loop.first %}
-          &middot;
-        {%- endif %}
-        <a href="{{ collection.url_for_self(request.urlgen) }}">
-          {{- collection.title }} (
-            {{- collection.get_creator.username -}}
-          )</a>
-      {%- endfor %}
-    </p>
-  {%- endif %}
-{% endblock %}
+
+import logging
+from mediagoblin.tools import pluginapi
+import os
+
+_log = logging.getLogger(__name__)
+
+PLUGIN_DIR = os.path.dirname(__file__)
+
+def setup_plugin():
+
+    _log.info('Setting up Dogma extra routing...')
+
+    routes = [
+          ('mediagoblin.plugins.dogma_routing.dogma_media_home',
+          '/dogma/u/<string:user>/m/<string:media>/',
+          'mediagoblin.plugins.dogma_routing.views:dogma_media_home'),
+       ]
+
+    pluginapi.register_routes(routes)
+    pluginapi.register_template_path(os.path.join(PLUGIN_DIR, 'templates'))
+
+
+hooks = {
+    'setup': setup_plugin
+    }

@@ -29,7 +29,8 @@ def collection_tools(request, media, collection_form, new_media=False):
     # Otherwise, use the collection selected from the drop-down
     else:
         collection = Collection.query.filter_by(
-            id=request.form.get('collection')).first()
+            id=request.form.get('collection'),
+            creator=request.user.id).first()
 
     # Make sure the user actually selected a collection
     if not collection:
@@ -38,7 +39,7 @@ def collection_tools(request, media, collection_form, new_media=False):
             _('You have to select or add a collection'))
         return redirect(request, "mediagoblin.user_pages.media_collect",
                     user=media.get_uploader.username,
-                    media=media.id)
+                    media_id=media.id)
 
 
     # Check whether media already exists in collection
@@ -52,7 +53,6 @@ def collection_tools(request, media, collection_form, new_media=False):
         collection_item = request.db.CollectionItem()
         collection_item.collection = collection.id
         collection_item.media_entry = media.id
-        collection_item.author = request.user.id
         collection_item.note = request.form['note']
         collection_item.save()
 

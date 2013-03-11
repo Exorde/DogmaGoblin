@@ -1,7 +1,15 @@
 from mediagoblin.db.base import Base
-from sqlalchemy import Column, Float,  Integer, Unicode, ForeignKey
+from sqlalchemy import Column, Float,  Integer, Unicode, ForeignKey, Table, Binary
 from sqlalchemy.orm import relationship, backref
-from mediagoblin.db.models import MediaEntry
+
+band_member =  Table("dogma__band_member_relation", Base.metadata,
+    Column('band_id', Integer, ForeignKey('dogma__band.id')),
+    Column('member_id', Integer, ForeignKey('dogma__member.id'))
+    )
+band_album =  Table("dogma__band_album_relation", Base.metadata,
+    Column('band_id', Integer, ForeignKey('dogma__band.id')),
+    Column('album_id', Integer, ForeignKey('dogma__album.id'))
+    )
 
 class DogmaExtraDataDB(Base):
     __tablename__ = "dogma__extra_data"
@@ -10,20 +18,51 @@ class DogmaExtraDataDB(Base):
     composers = Column(Unicode)
     authors = Column(Unicode)
     performers = Column(Unicode)
+    genre_ref = Column(Unicode)
     get_media_entry = relationship("MediaEntry",
                                    backref=backref("get_dogma_data", uselist=False,
                                                     cascade="all, delete-orphan"))
 
-class DogmaBandsDataDB(Base):
-    __tablename__ = "dogma__bands_data"
+class DogmaAlbumDB(Base):
+    __tablename__ = "dogma__album"
+    id = Column(Integer, primary_key=True)
+    title = Column(Unicode)
+    cover = Column(Binary(270000))
+    cover_small = Column(Binary(13000))
+    slug = Column(Unicode)
+    created = Column(Unicode)
+    description = Column(Unicode)
+    creator = Column(Unicode)
+    items = Column(Unicode)
 
-    band_id = Column(Integer, primary_key=True)
-    allowed_users_id = Column(Unicode)
+class DogmaBandDB(Base):
+    __tablename__ = "dogma__band"
+
+    id = Column(Integer, primary_key=True)
     name = Column(Unicode)
     description = Column(Unicode)
-    album_list = Column(Unicode)
+    picture = Column(Binary(270000))
+    picture_small = Column(Binary(13000))
     latitude = Column(Float)
     longitude = Column(Float)
-    location = Column(Unicode)
+    place = Column(Unicode)
+    members = relationship('DogmaMemberDB', secondary=band_member, backref="get_band_member")
+    albums = relationship('DogmaAlbumDB', secondary=band_album, backref="get_albums")
 
-MODELS = [DogmaExtraDataDB, DogmaBandsDataDB]
+class DogmaMemberDB(Base):
+    __tablename__ = "dogma__member"
+
+    id = Column(Integer, primary_key=True)
+    first_name = Column(Unicode)
+    last_name = Column(Unicode)
+    nickname = Column(Unicode)
+    picture = Column(Binary(270000))
+    picture_small = Column(Binary(13000))
+    roles = Column(Unicode)
+    description = Column(Unicode)
+    latitude = Column(Float)
+    longitude = Column(Float)
+    place = Column(Unicode)
+ 
+
+MODELS = [DogmaExtraDataDB, DogmaBandDB, DogmaMemberDB, DogmaAlbumDB]
